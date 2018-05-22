@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'octokit'
+require 'time'
 require_relative '../pull_request'
+require_relative '../utils/duration'
 
 module Filters
   class All
@@ -20,7 +22,8 @@ module Filters
     attr_reader :input
 
     def pull_options
-      options = { state: 'open', sort: 'updated', direction: 'asc' }
+      t = Time.now - Duration.parse(input.source.check_every).seconds
+      options = { state: 'open', sort: 'updated', direction: 'asc', :headers => { 'If-Modified-Since' => t.httpdate } }
       options[:base] = input.source.base if input.source.base
       options
     end
