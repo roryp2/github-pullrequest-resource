@@ -12,7 +12,7 @@ require_relative 'filters/specific_pr'
 class Repository
   attr_reader :name
 
-  def initialize(name:, input: Input.instance, filters: [Filters::All, Filters::Path, Filters::Fork, Filters::Label, Filters::CISkip, Filters::Mergeable, Filters::Approval, Filters::SpecificPr])
+  def initialize(name:, input: Input.instance, filters: [Filters::All, Filters::SpecificPr, Filters::Path, Filters::Fork, Filters::Label, Filters::CISkip, Filters::Mergeable, Filters::Approval])
     @filters = filters
     @name    = name
     @input   = input
