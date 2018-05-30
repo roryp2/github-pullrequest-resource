@@ -52,7 +52,7 @@ module Commands
       contextes.each do |context|
         Status.new(
           state: params.status,
-          atc_url: atc_url,
+          atc_url: whitelist(context: atc_url),
           sha: sha,
           repo: repo,
           context: whitelist(context: context)
@@ -64,6 +64,11 @@ module Commands
         comment = File.read(comment_path, encoding: Encoding::UTF_8)
         Octokit.add_comment(input.source.repo, id, comment)
         metadata << { 'name' => 'comment', 'value' => comment }
+      end
+
+      if params.label
+        Octokit.add_labels_to_an_issue(input.source.repo, id, [params.label])
+        metadata << { 'name' => 'label', 'value' => params.label }
       end
 
       if params.merge.method

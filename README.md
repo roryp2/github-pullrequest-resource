@@ -41,6 +41,9 @@ resource_types:
   linking to builds. On newer versions of Concourse ( >= v0.71.0) , the resource will
   automatically sets the URL.
 
+  This supports the [build environment](http://concourse.ci/implementing-resources.html#resource-metadata)
+  variables provided by concourse. For example, `context: $BUILD_JOB_NAME` will set the context to the job name.
+
 * `private_key`: *Optional.* Private key to use when pulling/pushing.
     Example:
     ```
@@ -181,6 +184,8 @@ Set the status message for `concourse-ci` context on specified pull request.
 * `merge.method`: *Optional.* Use this to merge the PR into the target branch of the PR. There are three available merge methods -- `merge`, `squash`, or `rebase`. Please this [doc](https://developer.github.com/changes/2016-09-26-pull-request-merge-api-update/) for more information.
 
 * `merge.commit_msg`: *Optional.* Used with `merge` to set the commit message for the merge. Specify a file path to the merge commit message.
+
+* `label`: *Optional.* A label to add to the pull request.
 
 ## Example pipeline
 

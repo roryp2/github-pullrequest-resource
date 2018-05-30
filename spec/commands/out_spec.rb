@@ -39,6 +39,7 @@ describe Commands::Out do
 
     stub_json(:get, "https://api.github.com:443/repos/jtarchie/test/statuses/#{@sha}", [])
     ENV['BUILD_ID'] = '1234'
+    ENV['ATC_EXTERNAL_URL'] = 'default-test-atc-url.com'
   end
 
   def stub_json(method, uri, body)
@@ -195,6 +196,26 @@ describe Commands::Out do
       end
     end
 
+    context 'when setting a status with a label' do
+      before do
+        stub_request(:post, "https://api.github.com/repos/jtarchie/test/issues/1/labels").with(
+          body: "[\"test_label\"]").to_return(
+            status: 200, body: "", headers: {})
+      end
+      it 'posts a comment to the PR\'s SHA' do
+        stub_status_post
+        stub_json(:post, 'https://api.github.com:443/repos/jtarchie/test/issues/1/comments', id: 1)
+
+        output, = put('params' => { 'status' => 'success', 'path' => 'resource', 'label' => 'test_label' }, 'source' => { 'repo' => 'jtarchie/test' })
+        expect(output).to eq('version'  => { 'ref' => @sha, 'pr' => '1' },
+                             'metadata' => [
+                               { 'name' => 'status', 'value' => 'success' },
+                               { 'name' => 'url', 'value' => 'http://example.com' },
+                               { 'name' => 'label', 'value' => 'test_label' },
+                             ])
+      end
+    end
+
     context 'when the pull request is being release' do
       context 'and the build passed' do
         it 'sets into success mode' do
@@ -213,6 +234,16 @@ describe Commands::Out do
             stub_status_post.with(body: hash_including('target_url' => 'http://example.com/builds/1234'))
 
             put('params' => { 'status' => 'success', 'path' => 'resource' }, 'source' => { 'repo' => 'jtarchie/test', 'base_url' => 'http://example.com' })
+          end
+        end
+
+        context 'with base_url defined on source containing environment variable' do
+          it 'sets the target_url for status' do
+            ENV['BUILD_TEAM_NAME'] = 'build-env-var'
+            stub_status_post.with(body: hash_including('target_url' => 'http://example.com/build-env-var/builds/1234'))
+
+            put('params' => { 'status' => 'success', 'path' => 'resource' }, 'source' => { 'repo' => 'jtarchie/test', 'base_url' => 'http://example.com/$BUILD_TEAM_NAME' })
+            ENV['BUILD_TEAM_NAME'] = nil
           end
         end
 
