@@ -12,6 +12,7 @@ RUN set -ex; \
   ruby \
   ruby-json \
   ruby-bundler \
+  ruby-bigdecimal \
   ; \
   rm -rf /var/cache/apk/*;
 
