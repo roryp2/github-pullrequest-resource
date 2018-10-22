@@ -1,5 +1,5 @@
 # Stage: Base
-FROM alpine as resource
+FROM alpine
 
 RUN set -ex; \
   apk add --update \
@@ -23,9 +23,6 @@ RUN chmod +x /opt/resource/*
 ADD scripts/install_git_lfs.sh install_git_lfs.sh
 RUN ./install_git_lfs.sh
 
-# Stage: Testing
-FROM resource as tests
-
 RUN apk add --update \
     ruby-bundler \
     ruby-io-console \
@@ -40,6 +37,3 @@ RUN cd /resource && bundle install
 COPY . /resource
 
 RUN cd /resource && rspec
-
-# Stage: Final
-FROM resource
